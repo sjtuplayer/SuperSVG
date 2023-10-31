@@ -41,7 +41,7 @@ cnt=0
 os.makedirs('dataset/superpixel-mask',exist_ok=True)
 data_length=50000
 for i in range(data_length):
-    if i%10==0:
+    if i%100==0:
         print(i,'/',data_length)
     image = Image.open(paths[i]).convert('RGB')
     image = np.array(image) / 255.0
