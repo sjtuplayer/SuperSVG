@@ -12,6 +12,7 @@ from torch.multiprocessing import Process, Queue
 from util import SVR_render
 from torchvision import transforms
 import random
+from util import mophology
 channel_mean = torch.tensor([0.485, 0.456, 0.406])
 channel_std = torch.tensor([0.229, 0.224, 0.225])
 pydiffvg.set_print_timing(False)
@@ -243,6 +244,7 @@ class AttnPainterSVG(nn.Module):
             pred = self.rendering(new_strokes)[:, :1, :, :]
             pred.reshape(x.shape[0], -1, pred.shape[-2], pred.shape[-1])
             lambda_mask=max(0.1-0.001*epoch_id,0.05)
+            mask = mophology.dilation(mask,m=2)
             loss_mask=((pred*(1-mask)).sum())/((1-mask).sum())*lambda_mask
             return loss_mse,loss_mask
 

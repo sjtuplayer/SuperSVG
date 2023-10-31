@@ -41,24 +41,28 @@ class AttrImgDataset(Dataset):
             self.paths=[os.path.join(self.data_root,i) for i in os.listdir(data_root)]
         self.l=len(self.paths)
         self.transform = transforms.Compose([
-            transforms.RandomHorizontalFlip(),
+            #transforms.RandomHorizontalFlip(),
             transforms.Resize((width, width)),
             transforms.ToTensor(),
             ])
         self.resize_128=transforms.Resize([128,128])
         self.resize=transforms.Resize([width,width])
+        mask_dir='/dataset/superpixel-mask'
+        self.mask_paths = [os.path.join(mask_dir, i) for i in os.listdir(mask_dir)]
     def __getitem__(self, index):
         index=random.randint(0,len(self.paths)-1)
         image = Image.open(self.paths[index%self.l]).convert('RGB')
         image=np.array(image)/255.0
-        segments = torch.from_numpy(slic(image, n_segments=16, sigma=5, compactness=30))
+        #segments = torch.from_numpy(slic(image, n_segments=16, sigma=5, compactness=30))
         image=torch.from_numpy(image).permute(2,0,1).float()
-        segment_num=segments.max()
-        mask_idx=random.randint(1,segment_num)
-        seg_mask = (segments == mask_idx).int()
-        idxs = torch.nonzero(seg_mask)
-        x1, x2, y1, y2 = idxs[:, 0].min(), idxs[:, 0].max(), idxs[:, 1].min(), idxs[:, 1].max()
-        mask = seg_mask[x1:x2 + 1, y1:y2 + 1].unsqueeze(0)
+        # segment_num=segments.max()
+        # mask_idx=random.randint(1,segment_num)
+        # seg_mask = (segments == mask_idx).int()
+        # idxs = torch.nonzero(seg_mask)
+        # x1, x2, y1, y2 = idxs[:, 0].min(), idxs[:, 0].max(), idxs[:, 1].min(), idxs[:, 1].max()
+        # mask = seg_mask[x1:x2 + 1, y1:y2 + 1].unsqueeze(0)
+        mask_index=random.randint(0,len(self.mask_paths)-1)
+        mask=self.transform(Image.open(self.mask_paths[mask_index]).convert('L'))
         mask=self.resize(mask)
         image=self.resize(image)
         mask = (mask > 0.5).int().float()
@@ -188,7 +192,7 @@ def main(args):
     model=AttnPainterSVG(stroke_num=128,path_num=4,width=width,control_num=args.control_num)
     #ckpt = torch.load('/home/huteng/SVG/AttnPainter/output-test/checkpoints-best.pt')
     # ckpt = torch.load('/home/huteng/SVG/AttnPainter/output-64/checkpoints-imagenet.pt')
-    ckpt=torch.load('/home/huteng/SVG/AttnPainter/output_superpixel/checkpoints128_paths-mask_loss.pt')
+    ckpt=torch.load('output_superpixel/checkpoints128_paths-mask_loss.pt')
     # print(ckpt.keys())
     # new_ckpt={}
     # for key in ckpt.keys():
