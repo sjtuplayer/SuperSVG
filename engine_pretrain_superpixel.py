@@ -116,7 +116,8 @@ def evaluate(model, images,masks, log_writer, args, epoch_id,wandb):
     os.makedirs(args.log_dir + '/imgs', exist_ok=True)
     save_image(torch.cat([output[:8, :3, :, :], gt[:8]], dim=0), args.log_dir + '/imgs/%d.jpg' % epoch_id, nrow=8,
                normalize=False)
-    wandb.log({"image": wandb.Image(args.log_dir + '/imgs/%d.jpg' % epoch_id)})
+    # if wandb is not None:
+    #     wandb.log({"image": wandb.Image(args.log_dir + '/imgs/%d.jpg' % epoch_id)})
     # if model.control_num:
     #     for num in [16,32, 64]:
     #         with torch.cuda.amp.autocast():

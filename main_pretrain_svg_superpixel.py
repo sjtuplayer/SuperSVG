@@ -92,7 +92,6 @@ class AttrImgDataset(Dataset):
         mask = (mask > 0.5).int().float()
         return image,mask
     def __len__(self):
-        #return 3000
         return max(self.l,6000)
 
 
@@ -162,7 +161,9 @@ def get_args_parser():
 
 
 def main(args):
-    if args.wandb:
+    args.log_dir=args.output_dir
+    misc.init_distributed_mode(args)
+    if args.wandb and args.rank==0:
         import wandb
         wandb.init(config=args,
                    project='SuperSVG',
@@ -170,9 +171,6 @@ def main(args):
                    reinit=True)
     else:
         wandb=None
-    args.log_dir=args.output_dir
-    misc.init_distributed_mode(args)
-
     print('job dir: {}'.format(os.path.dirname(os.path.realpath(__file__))))
     print("{}".format(args).replace(', ', ',\n'))
 
@@ -271,7 +269,8 @@ def main(args):
         )
         # if args.output_dir and (epoch % 2 == 0 or epoch + 1 == args.epochs):
         if args.distributed:
-            torch.save(model.module.state_dict(),args.output_dir+'/checkpoints%s.pt'%args.label_name)
+            if args.rank==0:
+                torch.save(model.module.state_dict(),args.output_dir+'/checkpoints%s.pt'%args.label_name)
         else:
             torch.save(model.state_dict(), args.output_dir + '/checkpoints%s.pt' % args.label_name)
         if critic is not None:
