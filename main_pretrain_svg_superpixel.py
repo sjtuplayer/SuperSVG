@@ -64,8 +64,8 @@ class AttrImgDataset(Dataset):
         mask = (mask > 0.5).int().float()
         return image,mask
     def __len__(self):
-        print('len hhhhhhhhhhhhhhhhhhhh',self.l)
-        return max(self.l,6000)
+        return min(self.l,100000)
+        #return max(self.l,6000)
 
 
 def get_args_parser():
