@@ -28,11 +28,18 @@ import numpy as np
 from torchvision.utils import save_image
 width=224
 class AttrImgDataset(Dataset):
-    def __init__(self,data_root='/home/huteng/dataset/imagenet/val',bs=24):
+    def __init__(self,data_root='/home/huteng/dataset/imagenet/val',bs=24,with_lable=True):
         self.bs=bs
         self.data_root=data_root
-        self.paths=[os.path.join(self.data_root,i) for i in os.listdir(data_root)]
-        self.l=len(os.listdir(data_root))
+        if with_lable is True:
+            subdirs=[os.path.join(self.data_root,i) for i in os.listdir(data_root)]
+            self.paths=[]
+            for subdir in subdirs:
+                self.paths+=[os.path.join(subdir,i) for i in os.listdir(subdir)]
+            #self.paths=[os.path.join(self.data_root,i) for i in os.listdir(subdirs)]
+        else:
+            self.paths=[os.path.join(self.data_root,i) for i in os.listdir(data_root)]
+        self.l=len(self.paths)
         self.transform = transforms.Compose([
             transforms.RandomHorizontalFlip(),
             transforms.Resize((width, width)),
@@ -40,41 +47,6 @@ class AttrImgDataset(Dataset):
             ])
         self.resize_128=transforms.Resize([128,128])
         self.resize=transforms.Resize([width,width])
-            #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
-    # def __getitem__(self, index):
-    #     index=random.randint(0,len(self.paths)-1)
-    #     s0=time.time()
-    #     image = Image.open(self.paths[index%self.l]).convert('RGB')
-    #     image=np.array(image)/255.0
-    #     #segments = torch.from_numpy(slic(image, n_segments=64, sigma=5))
-    #     segments = torch.from_numpy(slic(image, n_segments=32, sigma=5, compactness=30))
-    #     image=torch.from_numpy(image).permute(2,0,1)
-    #     segment_num=segments.max()
-    #     imgs=[]
-    #     masks=[]
-    #     for i in range(1,segment_num+1):
-    #         seg_mask=(segments==i).int()
-    #         idxs=torch.nonzero(seg_mask)
-    #         x1,x2,y1,y2=idxs[:,0].min(),idxs[:,0].max(),idxs[:,1].min(),idxs[:,1].max()
-    #         img=(image*seg_mask)[:,x1:x2+1,y1:y2+1]
-    #         mask = seg_mask[x1:x2 + 1, y1:y2 + 1].unsqueeze(0)
-    #
-    #         #img,mask=self.center_padding(img,mask,x1,x2,y1,y2)
-    #         img = self.resize(img)
-    #         mask = self.resize(mask)
-    #         mask = (mask > 0.5).int()
-    #         imgs.append(img)
-    #         masks.append(mask)
-    #     imgs=torch.stack(imgs,dim=0)
-    #     masks=torch.stack(masks,dim=0)
-    #     if len(imgs)<self.bs:
-    #         imgs=torch.cat([imgs,imgs[0:1].repeat(self.bs-len(imgs),1,1,1)],dim=0)
-    #         masks=torch.cat([masks,masks[0:1].repeat(self.bs-len(masks),1,1,1)],dim=0)
-    #     index=torch.randint(0,len(imgs),size=(self.bs,))
-    #     imgs = imgs[index, :, :, :].float()
-    #     masks = masks[index, :, :, :].float()
-    #     s1=time.time()
-    #     return imgs,masks
     def __getitem__(self, index):
         index=random.randint(0,len(self.paths)-1)
         image = Image.open(self.paths[index%self.l]).convert('RGB')
@@ -92,6 +64,7 @@ class AttrImgDataset(Dataset):
         mask = (mask > 0.5).int().float()
         return image,mask
     def __len__(self):
+        print('len hhhhhhhhhhhhhhhhhhhh',self.l)
         return max(self.l,6000)
 
 
@@ -124,7 +97,7 @@ def get_args_parser():
                         help='epochs to warmup LR')
 
     # Dataset parameters
-    parser.add_argument('--data_path', default='/home/huteng/dataset/imagenet/val', type=str,
+    parser.add_argument('--data_path', default='/home/huteng/dataset/imagenet/train', type=str,
                         help='dataset path')
     parser.add_argument('--label_name', default='')
     parser.add_argument('--output_dir', default='./output_superpixel',
