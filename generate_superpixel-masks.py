@@ -26,17 +26,23 @@ from engine_pretrain_superpixel import train_one_epoch
 from skimage.segmentation import slic
 import numpy as np
 from torchvision.utils import save_image
+args = argparse.ArgumentParser('Encoder training', add_help=False)
+args.add_argument('--data_path', type=str,
+                    help='path to the dataset')
+args = args.parse_args()
+data_root=args.data_path
 width=224
-data_root='/home/huteng/dataset/imagenet/train'
 subdirs=[os.path.join(data_root,i) for i in os.listdir(data_root)]
 paths=[]
 for subdir in subdirs:
     paths+=[os.path.join(subdir,i) for i in os.listdir(subdir)]
 resize=transforms.Resize([width,width])
 cnt=0
-for i in range(len(paths)):
-    if i%100==0:
-        print(i,len(paths))
+os.makedirs('dataset/superpixel-mask',exist_ok=True)
+data_length=50000
+for i in range(data_length):
+    if i%10==0:
+        print(i,'/',data_length)
     image = Image.open(paths[i]).convert('RGB')
     image = np.array(image) / 255.0
     segments = torch.from_numpy(slic(image, n_segments=16, sigma=5, compactness=30))
@@ -49,5 +55,5 @@ for i in range(len(paths)):
         mask = resize(mask)
         mask = (mask > 0.5).int().float()
         for tmp_mask in mask:
-            save_image(tmp_mask,os.path.join('/home/huteng/SVG/AttnPainter/dataset/superpixel-mask','%d.jpg'%cnt),normalize=False)
+            save_image(tmp_mask,os.path.join('dataset/superpixel-mask','%d.jpg'%cnt),normalize=False)
             cnt+=1
