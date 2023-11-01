@@ -26,6 +26,7 @@ from engine_pretrain_superpixel import train_one_epoch
 from skimage.segmentation import slic
 import numpy as np
 from torchvision.utils import save_image
+from torch.optim.lr_scheduler import CosineAnnealingLR,CosineAnnealingWarmRestarts,StepLR
 width=224
 class AttrImgDataset(Dataset):
     def __init__(self,data_root='/home/huteng/dataset/imagenet/val',bs=24,with_lable=True):
@@ -47,7 +48,7 @@ class AttrImgDataset(Dataset):
             ])
         self.resize_128=transforms.Resize([128,128])
         self.resize=transforms.Resize([width,width])
-        mask_dir='/dataset/superpixel-mask'
+        mask_dir='dataset/superpixel-mask'
         self.mask_paths = [os.path.join(mask_dir, i) for i in os.listdir(mask_dir)]
     def __getitem__(self, index):
         index=random.randint(0,len(self.paths)-1)
@@ -131,6 +132,7 @@ def get_args_parser():
     parser.add_argument('--report_time', action='store_true')
     parser.add_argument('--mask_loss', action='store_true')
     parser.add_argument('--wandb', action='store_true')
+    parser.add_argument('--cos_lr', action='store_true')
     parser.add_argument('--dist_url', default='env://',
                         help='url used to set up distributed training')
 
@@ -225,8 +227,15 @@ def main(args):
 
     # following timm: set wd as 0 for bias and norm layers
     param_groups = optim_factory.param_groups_weight_decay(model_without_ddp.encoder, args.weight_decay)
-    optimizer = torch.optim.AdamW(param_groups, lr=args.lr, betas=(0.9, 0.95))
-    print(optimizer)
+
+
+    if args.cos_lr:
+        args.lr *= 2
+        optimizer = torch.optim.AdamW(param_groups, lr=args.lr, betas=(0.9, 0.95))
+        scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=2, T_mult=2)
+    else:
+        optimizer = torch.optim.AdamW(param_groups, lr=args.lr, betas=(0.9, 0.95))
+        scheduler=None
     loss_scaler = NativeScaler()
 
     misc.load_model(args=args, model_without_ddp=model_without_ddp, optimizer=optimizer, loss_scaler=loss_scaler)
@@ -242,7 +251,8 @@ def main(args):
             log_writer=log_writer,
             args=args,
             epoch_id=epoch,
-            wandb=wandb
+            wandb=wandb,
+            scheduler=scheduler
         )
         # if args.output_dir and (epoch % 2 == 0 or epoch + 1 == args.epochs):
         if args.distributed:
@@ -276,3 +286,5 @@ if __name__ == '__main__':
     if args.output_dir:
         Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     main(args)
+
+#python -m torch.distributed.launch --nproc_per_node=2  main_pretrain_svg_superpixel.py --warmup=0 --label_name=128_paths-mask_loss --mask_loss --batch_size=32 --num_workers=0

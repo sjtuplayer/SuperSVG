@@ -111,6 +111,7 @@ def get_args_parser():
 
 resize_128 = transforms.Resize([128, 128])
 resize_256 = transforms.Resize([256, 256])
+resize_224=transforms.Resize([224,224])
 @torch.no_grad()
 def decode_by_id_map(image,model):
     #slic划分后，按照id_map筛选没在mask中的paths
@@ -120,7 +121,7 @@ def decode_by_id_map(image,model):
     shift=1
     image = image.resize((width, width))
     image = np.array(image) / 255.0
-    segments = slic(image, n_segments=16, sigma=5,compactness=50) # 512*512, 90 segments
+    segments = slic(image, n_segments=32, sigma=5,compactness=50) # 512*512, 90 segments
     print('num_of_segments',segments.max())
     new_img = mark_boundaries(image, segments)
     resize_512 = transforms.Resize([512, 512])
@@ -148,11 +149,11 @@ def decode_by_id_map(image,model):
         img = image * seg_mask_dialate.unsqueeze(0)
         img = img[:, x1:x2 + 1, y1:y2 + 1]
         mask = seg_mask[x1:x2 + 1, y1:y2 + 1].unsqueeze(0)
-        img = resize_256(img)
-        dialate_masks.append(resize_256(seg_mask_dialate[x1:x2 + 1, y1:y2 + 1].unsqueeze(0)))
+        img = resize_224(img)
+        dialate_masks.append(resize_224(seg_mask_dialate[x1:x2 + 1, y1:y2 + 1].unsqueeze(0)))
         #print(mask.shape)
         imgs.append(img)
-        masks.append(resize_256(mask))
+        masks.append(resize_224(mask))
 
 
     imgs = torch.stack(imgs, dim=0).cuda().float()
@@ -169,7 +170,7 @@ def decode_by_id_map(image,model):
             # print(imgs[j*bs:min((j+1)*bs,img.size(0)-1)].shape,'hh')
         strokes = torch.cat(strokes, dim=0)
     print(strokes.shape, imgs.shape)
-    model.width = 256
+    model.width = 224
     output = model.rendering(strokes)[:,:3,:,:]
     imgs = imgs
     output = output
@@ -207,9 +208,7 @@ def decode_by_id_map(image,model):
         for j in range(len(strokes[i])):
             stroke = strokes[i][j]
             # if id in id_map or id+0.5 in id_map or id-0.5 in id_map or id-0.5 in id_map:
-            #if id in id_map:
-            if True:
-            #if id in ids:
+            if id in id_map:
                 x1, x2, y1, y2 = coords[i]
                 stroke[1:-3:2] = x1 + (x2 - x1) * stroke[1:-3:2]
                 stroke[0:-3:2] = y1 + (y2 - y1) * stroke[0:-3:2]
@@ -419,6 +418,8 @@ def main(args):
     # ckpt=torch.load('/home/huteng/SVG/AttnPainter/output-test/checkpoints-best.pt')
     model = AttnPainterSVG(stroke_num=128, path_num=4, width=width, control_num=True)
     ckpt = torch.load('/home/huteng/SVG/AttnPainter/output_superpixel/checkpointsmask_loss7.pt')
+    # model = AttnPainterSVG(stroke_num=128, path_num=4, width=width, control_num=False)
+    # ckpt=torch.load('/home/huteng/SVG/AttnPainter/output_superpixel/checkpoints128_paths-mask_loss.pt')
     model.load_state_dict(ckpt)
 
     # checkpoint_model = torch.load('renderer-oil-FCN.pkl', map_location='cpu')
@@ -463,7 +464,7 @@ def main(args):
     average_loss=0
 
     for idx,file in enumerate(files):
-        if idx==15:
+        if idx==16:
             print(file)
             image = Image.open(file).convert('RGB')
             # test_resize(image,model)

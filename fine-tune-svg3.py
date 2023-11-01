@@ -167,6 +167,8 @@ def main(args):
     average_loss=0
     block=5
     for idx,file in enumerate(files):
+        if idx!=15:
+            continue
         loader = transforms.Compose([
             transforms.Resize((width * block, width * block)),
             transforms.ToTensor(),

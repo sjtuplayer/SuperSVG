@@ -163,8 +163,9 @@ def main(args):
     average_loss=0
     block=args.block_num
     os.makedirs('output/block=%d/%s' % (block, name),exist_ok=True)
+    filter_by_id_map=True
     for idx,file in enumerate(files):
-        if idx!=15:
+        if idx!=16:
             continue
         if block==1:
             loader = transforms.Compose([
@@ -195,16 +196,43 @@ def main(args):
             #save_image(img, 'output/%d-0.jpg' % idx, normalize=False)
             with torch.cuda.amp.autocast():
                 strokes = model.predict_path(img)[:,:64,:]
-            model.width = width
+
             output0=model.rendering(strokes)[:,:3,:,:]
             print('MSE distance0', l2_loss(img, output0),F.mse_loss(output0,img,reduce=False).mean(-1).mean(-1).mean(-1))
+
+            model.width = width * block
+            if filter_by_id_map:
+                id_strokes = strokes.clone()
+                cnt = 1
+                for i in range(block):
+                    for j in range(block):
+                        block_id = i * block + j
+                        id_strokes[block_id, :, :-3:2] = (1 / block) * j + id_strokes[block_id, :, :-3:2] / block
+                        id_strokes[block_id, :, 1:-3:2] = (1 / block) * i + id_strokes[block_id, :, 1:-3:2] / block
+                        for k in range(64):
+                            id_strokes[block_id, k, -3:] = cnt
+                            cnt += 1
+
+                id_strokes = id_strokes.resize(1, block * block * 64, 27)
+                id_map = model.rendering(id_strokes)[:, :3, :, :]
+
             for i in range(block):
                 for j in range(block):
                     block_id=i*block+j
                     strokes[block_id,:,:-3:2]=(1/block)*j+strokes[block_id,:,:-3:2]/block
                     strokes[block_id,:,1:-3:2] = (1 / block) * i + strokes[block_id,:,1:-3:2] / block
+
             strokes=strokes.resize(1,block*block*64,27)
-            model.width=width*block
+            if filter_by_id_map:
+                new_strokes = []
+                id=1
+                for i in range(block*block*64):
+                    if id in id_map:
+                        new_strokes.append(strokes[0,i])
+                    id+=1
+                new_strokes=torch.stack(new_strokes,dim=0)
+                strokes=new_strokes.unsqueeze(0)
+                print(strokes.shape)
             output=model.rendering(strokes)
             output = output[:, :3, :, :]
             print(output.shape,ori_img.shape)

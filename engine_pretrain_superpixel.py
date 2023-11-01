@@ -18,7 +18,8 @@ def train_one_epoch(model: torch.nn.Module,
                     log_writer=None,
                     args=None,
                     epoch_id=0,
-                    wandb=None):
+                    wandb=None,
+                    scheduler=None):
     model.train(True)
     metric_logger = misc.MetricLogger(delimiter="  ")
     metric_logger.add_meter('lr', misc.SmoothedValue(window_size=1, fmt='{value:.6f}'))
@@ -39,8 +40,11 @@ def train_one_epoch(model: torch.nn.Module,
         masks = masks.to(device)
         t0 = time.time()
         # we use a per iteration (instead of per epoch) lr scheduler
-        if data_iter_step % accum_iter == 0:
-            lr_sched.adjust_learning_rate(optimizer, data_iter_step / len(data_loader) + epoch, args)
+        if scheduler is None:
+            if data_iter_step % accum_iter == 0:
+                lr_sched.adjust_learning_rate(optimizer, data_iter_step / len(data_loader) + epoch, args)
+        else:
+            scheduler.step(data_iter_step / len(data_loader) + epoch)
 
         #print(imgs.shape,masks.shape)
         with torch.cuda.amp.autocast():

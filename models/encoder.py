@@ -146,7 +146,7 @@ class StrokeAttentionPredictor(nn.Module):
     def __init__(self, stroke_num=512, stroke_dim=13, self_attn_depth=1,control_num=False):
         super(StrokeAttentionPredictor, self).__init__()
         self.feature_extractor = timm.create_model('vit_small_patch16_224_dino', pretrained=False)
-        self.feature_extractor.load_state_dict(torch.load('/home/huteng/.cache/torch/hub/checkpoints/dino_deitsmall16_pretrain.pth'))
+        #self.feature_extractor.load_state_dict(torch.load('/home/huteng/.cache/torch/hub/checkpoints/dino_deitsmall16_pretrain.pth'))
         self.stroke_head = StrokeAttentionHead(stroke_num=stroke_num, stroke_dim=stroke_dim, encoder_embed_dim=self.feature_extractor.embed_dim, self_attn_depth=self_attn_depth,control_num=control_num)
         self.resize_224 = transforms.Resize((224, 224))
     def extract_features(self, x):

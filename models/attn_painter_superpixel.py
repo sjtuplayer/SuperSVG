@@ -243,7 +243,8 @@ class AttnPainterSVG(nn.Module):
             new_strokes=torch.cat([strokes[:,:,:-3],torch.ones_like(strokes[:,:,-3:].to(strokes.device))],dim=-1)
             pred = self.rendering(new_strokes)[:, :1, :, :]
             pred.reshape(x.shape[0], -1, pred.shape[-2], pred.shape[-1])
-            lambda_mask=max(0.1-0.001*epoch_id,0.05)
+            # lambda_mask=max(0.1-0.001*epoch_id,0.05)
+            lambda_mask = max(0.1 - 0.001 * (epoch_id+13), 0.05)
             mask = mophology.dilation(mask,m=2)
             loss_mask=((pred*(1-mask)).sum())/((1-mask).sum())*lambda_mask
             return loss_mse,loss_mask
