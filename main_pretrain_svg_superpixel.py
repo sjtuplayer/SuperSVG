@@ -257,7 +257,7 @@ def main(args):
         # if args.output_dir and (epoch % 2 == 0 or epoch + 1 == args.epochs):
         if args.distributed:
             if args.rank==0:
-                torch.save(model.module.state_dict(),args.output_dir+'/checkpoints%s.pt'%args.label_name)
+                torch.save(model.module.state_dict(),args.output_dir+'/checkpoints%s-%d.pt'%args.label_name,epoch)
         else:
             torch.save(model.state_dict(), args.output_dir + '/checkpoints%s.pt' % args.label_name)
         if critic is not None:
