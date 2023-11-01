@@ -230,7 +230,7 @@ def main(args):
 
 
     if args.cos_lr:
-        args.lr *= 2
+        # args.lr *= 2
         optimizer = torch.optim.AdamW(param_groups, lr=args.lr, betas=(0.9, 0.95))
         scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=2, T_mult=2)
     else:
