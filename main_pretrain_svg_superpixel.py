@@ -194,7 +194,7 @@ def main(args):
     model=AttnPainterSVG(stroke_num=128,path_num=4,width=width,control_num=args.control_num)
     #ckpt = torch.load('/home/huteng/SVG/AttnPainter/output-test/checkpoints-best.pt')
     # ckpt = torch.load('/home/huteng/SVG/AttnPainter/output-64/checkpoints-imagenet.pt')
-    ckpt=torch.load('output_superpixel/checkpoints128_paths-mask_loss.pt')
+    ckpt=torch.load('output_superpixel/checkpoints128_paths-mask_loss-13.pt')
     # print(ckpt.keys())
     # new_ckpt={}
     # for key in ckpt.keys():
@@ -213,9 +213,9 @@ def main(args):
     eff_batch_size = args.batch_size * args.accum_iter * misc.get_world_size()
 
     if args.lr is None:  # only base_lr is specified
-        args.lr = args.blr * eff_batch_size / 256
+        args.lr = args.blr * eff_batch_size / 256/2
 
-    print("base lr: %.2e" % (args.lr * 256 / eff_batch_size))
+    print("base lr: %.2e" % (args.lr * 256*2 / eff_batch_size))
     print("actual lr: %.2e" % args.lr)
 
     print("accumulate grad iterations: %d" % args.accum_iter)

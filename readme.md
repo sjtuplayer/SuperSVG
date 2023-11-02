@@ -30,5 +30,5 @@ wandb login
 
 python -m torch.distributed.launch --nproc_per_node=8  
 main_pretrain_svg_superpixel.py --warmup=0 --label_name=128_paths-mask_loss 
---mask_loss --batch_size=32 --wandb --num_workers=8 --data_path=$path_to_imagenet --cos_lr
+--mask_loss --batch_size=32 --wandb --num_workers=8 --data_path=$path_to_imagenet
 ```
