@@ -23,11 +23,11 @@ torch.multiprocessing.set_start_method('spawn', force=True)
 
 
 class AttnPainterSVG(nn.Module):
-    def __init__(self, stroke_num=128, path_num=4, width=128,control_num=False):
+    def __init__(self, stroke_num=128, path_num=4, width=128,control_num=False,self_attn_depth=1):
         super(AttnPainterSVG, self).__init__()
         self.control_num=control_num
         self.path_num = path_num
-        self.encoder = StrokeAttentionPredictor(stroke_num=stroke_num, stroke_dim=path_num * 6 + 3,control_num=control_num)
+        self.encoder = StrokeAttentionPredictor(stroke_num=stroke_num, stroke_dim=path_num * 6 + 3,control_num=control_num,self_attn_depth=self_attn_depth)
         self.stroke_num = stroke_num
         self.device = 'cuda'
         self.render = SVR_render.SVGObject(size=(width, width))
@@ -244,7 +244,8 @@ class AttnPainterSVG(nn.Module):
             pred = self.rendering(new_strokes)[:, :1, :, :]
             pred.reshape(x.shape[0], -1, pred.shape[-2], pred.shape[-1])
             # lambda_mask=max(0.1-0.001*epoch_id,0.05)
-            lambda_mask = max(0.1 - 0.001 * (epoch_id+13), 0.05)
+            #lambda_mask = max(0.1 - 0.001 * (epoch_id+13), 0.05)
+            lambda_mask=0.05
             mask = mophology.dilation(mask,m=2)
             loss_mask=((pred*(1-mask)).sum())/((1-mask).sum())*lambda_mask
             return loss_mse,loss_mask

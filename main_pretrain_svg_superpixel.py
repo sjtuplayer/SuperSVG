@@ -95,7 +95,7 @@ def get_args_parser():
                         help='learning rate (absolute lr)')
     parser.add_argument('--blr', type=float, default=1e-3, metavar='LR',
                         help='base learning rate: absolute_lr = base_lr * total_batch_size / 256')
-    parser.add_argument('--min_lr', type=float, default=0., metavar='LR',
+    parser.add_argument('--min_lr', type=float, default=1e-5, metavar='LR',
                         help='lower lr bound for cyclic schedulers that hit 0')
 
     parser.add_argument('--warmup_epochs', type=int, default=6, metavar='N',
@@ -133,6 +133,7 @@ def get_args_parser():
     parser.add_argument('--mask_loss', action='store_true')
     parser.add_argument('--wandb', action='store_true')
     parser.add_argument('--cos_lr', action='store_true')
+    parser.add_argument('--self_attn_depth', type=int,default=1)
     parser.add_argument('--dist_url', default='env://',
                         help='url used to set up distributed training')
 
@@ -191,10 +192,14 @@ def main(args):
     )
 
     # define the model
-    model=AttnPainterSVG(stroke_num=128,path_num=4,width=width,control_num=args.control_num)
+    model=AttnPainterSVG(stroke_num=128,path_num=4,width=width,control_num=args.control_num,self_attn_depth=args.self_attn_depth)
     #ckpt = torch.load('/home/huteng/SVG/AttnPainter/output-test/checkpoints-best.pt')
     # ckpt = torch.load('/home/huteng/SVG/AttnPainter/output-64/checkpoints-imagenet.pt')
-    ckpt=torch.load('output_superpixel/checkpoints128_paths-mask_loss-13.pt')
+    if args.self_attn_depth==4:
+        ckpt=torch.load('output_superpixel/128-imagenet-4-self_attn_depth.pt')
+    else:
+        ckpt=torch.load('output_superpixel/checkpoints128_paths-mask_loss-v2-36.pt')
+        ckpt = torch.load('output_superpixel/checkpoints128_paths-mask_loss-38.pt')
     # print(ckpt.keys())
     # new_ckpt={}
     # for key in ckpt.keys():
