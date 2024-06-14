@@ -53,6 +53,7 @@ After training, the checkpoints and logs are saved in the directory `output_coar
 ### (2) Train the Refinement-stage Model
 
 Coming soon
+
 [//]: # (With the trained coarse-stage model, you can train the refinement-stage model by running:)
 
 [//]: # ()
