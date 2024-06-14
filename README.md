@@ -1,6 +1,6 @@
 # SuperSVG: Superpixel-based Scalable Vector Graphics Synthesis
 
-###  [Paper](https://arxiv.org/abs/2404.15789) |   [Page](https://sjtuplayer.github.io/projects/MotionMaster/)
+###  [Paper](https://arxiv.org/abs/2404.15789)
 <!-- <br> -->
 [Teng Hu](https://github.com/sjtuplayer),
 [Ran Yi](https://yiranran.github.io/),
