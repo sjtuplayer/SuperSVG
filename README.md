@@ -72,7 +72,7 @@ If you find this code helpful for your research, please cite:
 ```
 @inproceedings{hu2024supersvg,
       title={SuperSVG: Superpixel-based Scalable Vector Graphics Synthesis}, 
-      author={Teng Hu Ran Yi and Baihong Qian and Jiangning Zhang and Paul L. Rosin and Yu-Kun Lai},
+      author={Teng Hu and Ran Yi and Baihong Qian and Jiangning Zhang and Paul L. Rosin and Yu-Kun Lai},
       booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
       year={2024}
 }
