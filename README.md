@@ -7,7 +7,7 @@
 [Baihong Qian](https://github.com/CherryQBH), 
 [Jiangning Zhang](https://zhangzjn.github.io/),
 [Paul L. Rosin](https://scholar.google.com/citations?hl=zh-CN&user=V5E7JXsAAAAJ),
-[Yu-Kun Lai](https://scholar.google.com/citations?user=0i-Nzv0AAAAJ&hl=zh-CN&oi=sra)
+ and [Yu-Kun Lai](https://scholar.google.com/citations?user=0i-Nzv0AAAAJ&hl=zh-CN&oi=sra)
 <!-- <br> -->
 
 ![image](imgs/framework.jpg)
@@ -16,7 +16,6 @@
 # Prepare
 
 ```bash
-pip install wandb
 conda create -n live python=3.7
 conda activate live
 conda install -y pytorch torchvision -c pytorch
