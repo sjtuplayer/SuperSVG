@@ -1,6 +1,7 @@
 # SuperSVG: Superpixel-based Scalable Vector Graphics Synthesis
 
-###  [Paper](https://openaccess.thecvf.com/content/CVPR2024/papers/Hu_SuperSVG_Superpixel-based_Scalable_Vector_Graphics_Synthesis_CVPR_2024_paper.pdf)
+###  [Paper](https://openaccess.thecvf.com/content/CVPR2024/papers/Hu_SuperSVG_Superpixel-based_Scalable_Vector_Graphics_Synthesis_CVPR_2024_paper.pdf) | [Suppl](https://openaccess.thecvf.com/content/CVPR2024/supplemental/Hu_SuperSVG_Superpixel-based_Scalable_CVPR_2024_supplemental.pdf)
+
 <!-- <br> -->
 [Teng Hu](https://github.com/sjtuplayer),
 [Ran Yi](https://yiranran.github.io/),
