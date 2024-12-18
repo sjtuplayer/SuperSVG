@@ -32,6 +32,11 @@ python setup.py install
 cd ..
 ```
 
+## Checkpoints
+
+  Currently we are working on an improved version of SuperSVG and the complete code will be released after that project.
+  If you want to reproduce the results in the paper, you can download the [ckeckponits](https://drive.google.com/file/d/10C9EsMD6_B7dCEz6oNJetevNazk3blBK/view?usp=drive_link) of our imporved coarse-stage model,
+  which performs almost the same as the coarse+refine model in the paper.
 
 
 ## Training Step
