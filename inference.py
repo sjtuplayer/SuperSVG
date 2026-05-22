@@ -12,6 +12,15 @@ from PIL import Image
 from skimage.segmentation import slic
 from torchvision.utils import save_image
 
+#as cpu fallback is brocken if diffvg is not compiled with gpu it put runtime error
+#RuntimeError: diffvg not compiled with GPU
+import torch
+import pydiffvg
+try:
+    pydiffvg.set_use_gpu(torch.cuda.is_available())
+except Exception:
+    pydiffvg.set_use_gpu(False)
+
 from models.attn_painter_superpixel import AttnPainterSVG
 from models.refine_diff_module_multi_self_mlp import AttnPainterSVG as RefinePainterSVG
 from models.refine_model_muti_self_dtw0 import CombinedModel as RefineModel
